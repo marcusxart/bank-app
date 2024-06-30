@@ -1,11 +1,19 @@
-const express = require("express");
-const app = express();
-const port = 3000;
+require("dotenv").config();
+const http = require("http");
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+const app = require("./app");
+const db = require("./database/models");
+const Logger = require("./utils/logger");
+
+const PORT = process.env.PORT;
+const server = http.createServer(app);
+
+db.sequelize.sync({ alter: true }).then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+process.on("unhandledRejection", (reason, promise) => {
+  Logger.error(`Unhandled Rejection at: ${promise} reason: ${reason}`);
 });
