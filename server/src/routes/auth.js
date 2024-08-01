@@ -3,7 +3,6 @@ const {
   createUser,
   handleLogin,
   forgetPassword,
-  verifyOtp,
   resetPassword,
   sendEmailVerification,
   confirmEmailVerification,
@@ -12,6 +11,7 @@ const {
   handleRefreshToken,
   handleLogout,
 } = require("../controllers/refreshToken.controller");
+const { verifyOtp } = require("../controllers/otp.controller");
 const {
   createAccountValidationMiddleware,
 } = require("../middlewares/AccountValidations.middleware");
@@ -27,11 +27,17 @@ auth.post("/refresh", handleRefreshToken("users"));
 //  forgotten password  roists
 auth.post("/forgotten-password", validators.email, forgetPassword);
 auth.post("/forgotten-password/verify-otp", verifyOtp("password.recovery"));
-auth.post("/forgotten-password/reset", validators.reset, resetPassword);
+auth.post(
+  "/forgotten-password/reset",
+  validators.reset,
+  verifyOtp("password.recovery", resetPassword)
+);
 
 // email verification routes
-
 auth.post("/verify-email", validators.email, sendEmailVerification);
-auth.post("/verify-email/confirmation", confirmEmailVerification);
+auth.post(
+  "/verify-email/confirmation",
+  verifyOtp("email.verification", confirmEmailVerification)
+);
 
 module.exports = auth;

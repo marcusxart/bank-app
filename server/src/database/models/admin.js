@@ -19,8 +19,11 @@ const admin = (sequelize) => {
     },
     refreshToken: { type: DataTypes.STRING, allowNull: true },
     role: {
-      type: DataTypes.ENUM(...constants.ADMIN_ROLES_VALUES),
+      type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        isIn: [constants.ADMIN_ROLES_VALUES],
+      },
     },
   });
 

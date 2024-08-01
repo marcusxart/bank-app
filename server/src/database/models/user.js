@@ -44,13 +44,17 @@ const user = (sequelize) => {
     },
     refreshToken: { type: DataTypes.STRING, allowNull: true },
     gender: {
-      type: DataTypes.ENUM(...constants.USER.GENDER),
+      type: DataTypes.STRING,
+      validate: {
+        isIn: [constants.USER.GENDER],
+      },
       allowNull: false,
     },
   });
 
   user.associate = (models) => {
     user.hasMany(models.otp);
+    user.hasMany(models.loans);
     user.hasMany(models.accounts);
     user.hasMany(models.transactions);
   };

@@ -43,4 +43,29 @@ module.exports = {
       )}.`,
       "any.required": "Role is required.",
     }),
+  loanTypes: Joi.string()
+    .valid(...constants.LOAN.TYPES)
+    .required()
+    .messages({
+      "any.only": `Loan must be one of ${constants.LOAN.TYPES.join(", ")}.`,
+      "any.required": "Loan is required.",
+    }),
+  requiredText: Joi.string().required().max(300).message({
+    "any.required": "Field is required.",
+    "string.max": "Field must not exceed 300 characters.",
+  }),
+  date: Joi.date().min("now").required().messages({
+    "date.base": "The date must be a valid date",
+    "date.min": "The date must be today or in the future",
+    "any.required": "The date is required",
+  }),
+  schedule: Joi.string()
+    .valid(...constants.LOAN.SCHEDULE)
+    .required()
+    .messages({
+      "any.only": `Schedule must be one of ${constants.LOAN.SCHEDULE.join(
+        ", "
+      )}.`,
+      "any.required": "Schedule is required.",
+    }),
 };

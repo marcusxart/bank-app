@@ -92,8 +92,6 @@ module.exports = {
   reset: (req, res, next) => {
     joiHandler(
       {
-        email: joiConfig.email,
-        code: joiConfig.code,
         newPassword: joiConfig.password,
       },
       req,
@@ -101,11 +99,27 @@ module.exports = {
     );
   },
 
+  // validate change password
   changePassword: (req, res, next) => {
     joiHandler(
       {
         password: joiConfig.password,
         newPassword: joiConfig.password,
+      },
+      req,
+      next
+    );
+  },
+
+  // validate loan request
+  loanRequest: (req, res, next) => {
+    joiHandler(
+      {
+        type: joiConfig.loanTypes,
+        purpose: joiConfig.requiredText,
+        amount: joiConfig.amount,
+        currency: joiConfig.currency,
+        repaymentSchedule: joiConfig.schedule,
       },
       req,
       next

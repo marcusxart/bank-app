@@ -12,8 +12,11 @@ const transaction = (sequelize) => {
       },
 
       status: {
-        type: DataTypes.ENUM(...TRANSACTION.STATUS),
+        type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          isIn: [TRANSACTION.STATUS],
+        },
       },
       amount: {
         type: DataTypes.FLOAT,
@@ -27,10 +30,16 @@ const transaction = (sequelize) => {
       type: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          isIn: [TRANSACTION.TYPES],
+        },
       },
       currency: {
-        type: DataTypes.ENUM(...CURRENCY),
+        type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          isIn: [CURRENCY],
+        },
       },
       referenceId: {
         type: DataTypes.STRING,

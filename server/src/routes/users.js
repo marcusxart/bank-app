@@ -6,6 +6,7 @@ const {
   getMe,
 } = require("../controllers/users.controller");
 const userSettings = require("./userSettings");
+const loans = require("./loans");
 
 const users = Router();
 
@@ -16,5 +17,8 @@ users.get("/:id/transactions", userTransactions);
 
 //settings
 users.use("/:id/settings", userSettings);
+
+// loans
+users.use("/:id/loans", loans);
 
 module.exports = users;

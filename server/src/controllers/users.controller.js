@@ -56,10 +56,6 @@ exports.userTransactions = asyncHandler(async (req, res) => {
     req.query
   );
 
-  if (!accounts) {
-    throw new AppError("Account not found for the provided user ID.", 400);
-  }
-
   res.status(200).send({
     status: "success",
     results,

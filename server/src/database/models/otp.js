@@ -10,8 +10,11 @@ const OTP = (sequelize) => {
         allowNull: false,
       },
       type: {
-        type: DataTypes.ENUM(...constants.OTP_TYPES),
+        type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          isIn: [constants.OTP_TYPES],
+        },
       },
       expiry: {
         type: DataTypes.DATE,

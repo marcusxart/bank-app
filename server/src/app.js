@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // root route
-app.use("/api", require("./routes"));
+app.use("/", require("./routes"));
 
 // error middleware
 app.use(errorMiddleware);

@@ -20,8 +20,11 @@ const account = (sequelize) => {
         defaultValue: 0,
       },
       currency: {
-        type: DataTypes.ENUM(...constants.CURRENCY),
+        type: DataTypes.STRING,
         allowNull: false, // Default currency
+        validate: {
+          isIn: [constants.CURRENCY],
+        },
       },
     },
     { timestamps: false }
@@ -34,6 +37,14 @@ const account = (sequelize) => {
         name: "userId",
       },
       onDelete: "CASCADE",
+    });
+    account.hasMany(models.transferBanks, {
+      foreignKey: "accountId",
+      as: "transferBank",
+    });
+    account.hasMany(models.transferOtherBanks, {
+      foreignKey: "accountId",
+      as: "transferOtherBank",
     });
   };
 

@@ -1,5 +1,5 @@
+require("dotenv").config();
 const asyncHandler = require("express-async-handler");
-const moment = require("moment");
 const { Op } = require("sequelize");
 
 const { hashPassword, checkPassword } = require("../utils/hashPassword");
@@ -38,16 +38,17 @@ exports.createUser = asyncHandler(async (req, res) => {
 
   await db.sequelize.transaction(async (t) => {
     const user = await db.users.create(data, { transaction: t });
+
     await db.accounts.create(
       {
         userId: user.id,
         balance: 0,
         accountNumber: accountNum,
-        currency: "USD",
+        currency: "usd",
+        stripeId: customer.id,
       },
       { transaction: t }
     );
-    // const otp = await createOTP(user.id, "email.verification", t);
 
     //  send otp to mail
     await sendMail(
@@ -115,6 +116,13 @@ exports.sendEmailVerification = asyncHandler(async (req, res) => {
     throw new AppError("User with this email does not exist.", 404);
   }
 
+  if (user.verifiedEmail) {
+    res.status(201).send({
+      status: "success",
+      message: "Your email has already been verified.",
+    });
+  }
+
   await db.sequelize.transaction(async (t) => {
     const otpList = await db.otp.findAll({
       where: {
@@ -129,101 +137,44 @@ exports.sendEmailVerification = asyncHandler(async (req, res) => {
         transaction: t,
       });
     }
-    const otp = await createOTP(user.id, "email.verification", t, 10);
+    const otp = await createOTP(user.id, "email.verification", t, 6);
 
     // send a mail later
 
     const verificationUrl = `${req.protocol}://${req.get(
       "host"
     )}/api/v1/auth/verify-email?token=${otp.code}&email=${email}`;
+    const devResult =
+      process.env.NODE_ENV === "development"
+        ? { code: otp.code, url: verificationUrl }
+        : {};
 
     res.status(200).json({
       status: "success",
       message: "A code was sent to your email!",
-      code: otp.code,
-      url: verificationUrl,
+      ...devResult,
     });
   });
 });
 
-exports.confirmEmailVerification = asyncHandler(async (req, res) => {
-  const { code, email } = req.query;
-
-  if (!code || !email) {
-    throw new AppError("Missing required parameters.", 400);
-  }
-
-  const user = await db.users.findOne({ where: { email } });
-
-  if (!user) {
-    throw new AppError("User with this email does not exist.", 404);
-  }
-
-  const otp = await db.otp.findOne({
-    where: {
-      code,
-      userId: user.id,
-      type: "email.verification",
-      expiry: {
-        [Op.gte]: moment().format("YYYY-MM-DD HH:mm:ss"),
-      },
+exports.confirmEmailVerification = async (req, res, next, t) => {
+  const user = req.user;
+  await db.users.update(
+    {
+      verifiedEmail: true,
     },
-  });
-
-  if (!otp) {
-    throw new AppError("Invalid or expired verification code", 403);
-  }
-
-  await db.sequelize.transaction(async (t) => {
-    await user.update(
-      {
-        verifiedEmail: true,
+    {
+      where: {
+        id: user.id,
       },
-      {
-        where: {
-          id: user.id,
-        },
-        transaction: t,
-      }
-    );
-
-    await otp.destroy({ transaction: t });
-
-    // send successfull mail
-    res.status(200).send({
-      status: "success",
-      message: "Email verification successful!",
-    });
-  });
-});
-
-exports.resendEmailOTP = asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  const user = await db.users.findOne({
-    where: {
-      email,
-    },
-  });
-
-  if (!user) {
-    throw new AppError("User not found", 404);
-  }
-
-  if (user.verifiedEmail)
-    res.status(201).send({
-      status: "success",
-      message: "Your email has already been verified.",
-    });
-
-  await db.sequelize.transaction(async (t) => {
-    await createOTP(user.id, "email.verification", t);
-  });
-
-  res.status(201).send({
+      transaction: t,
+    }
+  );
+  res.status(200).send({
     status: "success",
-    message: "Please check your email for verification code",
+    message: "Email verification successful!",
   });
-});
+};
 
 exports.forgetPassword = asyncHandler(async (req, res) => {
   const { email } = req.data;
@@ -250,83 +201,33 @@ exports.forgetPassword = asyncHandler(async (req, res) => {
     // Generate a reset token
     const tokenResult = await createOTP(user.id, "password.recovery", t);
 
-    // later i will send a mail
     res.status(200).json({
       status: "success",
       message: "A code was sent to your email!",
-      code: tokenResult.code,
+      code:
+        process.env.NODE_ENV === "development" ? tokenResult.code : undefined,
     });
   });
 });
 
-exports.verifyOtp = (type) => {
-  return asyncHandler(async (req, res) => {
-    const { email, code } = req.query;
-
-    if (!code || !email) {
-      throw new AppError("Missing required parameters.", 400);
-    }
-
-    const user = await db.users.findOne({ where: { email } });
-    if (!user) {
-      throw new AppError("User with this email does not exist.", 404);
-    }
-
-    const otp = await db.otp.findOne({
-      where: {
-        userId: user.id,
-        code,
-        type,
-        expiry: {
-          [Op.gte]: moment().format("YYYY-MM-DD HH:mm:ss"),
-        },
-      },
-    });
-
-    if (!otp) {
-      throw new AppError("Invalid or expired verification code", 403);
-    }
-
-    res.status(200).json({
-      status: "success",
-      message: "OTP is valid.",
-    });
-  });
-};
-
-exports.resetPassword = asyncHandler(async (req, res) => {
-  const { email, code, newPassword } = req.data;
+exports.resetPassword = async (req, res, next, t) => {
+  const { newPassword } = req.data;
+  const email = req.query.email;
 
   const user = await db.users.findOne({ where: { email } });
 
-  if (!user) {
-    throw new AppError("User with this email does not exist.", 404);
-  }
-
-  const otp = await db.otp.findOne({
-    where: {
-      userId: user.id,
-      code,
-      type: "password.recovery",
-      expiry: {
-        [Op.gte]: moment().format("YYYY-MM-DD HH:mm:ss"),
-      },
-    },
-  });
-
-  if (!otp) {
-    throw new AppError("Invalid or expired verification code", 403);
+  if (await checkPassword(newPassword, user.password)) {
+    next(
+      new AppError("New password cannot be the same as the old password.", 400)
+    );
   }
 
   const hashNewPassword = await hashPassword(newPassword);
 
-  await db.sequelize.transaction(async (t) => {
-    await user.update({ password: hashNewPassword }, { transaction: t });
-    await db.otp.destroy({ where: { id: otpRecord.id }, transaction: t });
+  await user.update({ password: hashNewPassword }, { transaction: t });
 
-    res.status(200).json({
-      status: "success",
-      message: "Password has been reset successfully!",
-    });
+  res.status(200).json({
+    status: "success",
+    message: "Password has been reset successfully!",
   });
-});
+};
