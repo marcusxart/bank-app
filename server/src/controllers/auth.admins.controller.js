@@ -47,7 +47,7 @@ exports.adminLogin = asyncHandler(async (req, res) => {
     res.status(200).send({
       status: "success",
       message: "You've successfully logged in.",
-      access: accessToken,
+      accessToken,
     });
   });
 });

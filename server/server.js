@@ -6,12 +6,15 @@ const db = require("./src/database/models");
 const Logger = require("./src/utils/logger");
 
 const PORT = process.env.PORT;
+const developement = process.env.NODE_ENV === "development";
 const server = http.createServer(app);
 
 db.sequelize.sync({ alter: true }).then(() => {
-  server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
+  if (developement) {
+    server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  }
 });
 
 process.on("unhandledRejection", (reason, promise) => {

@@ -17,9 +17,9 @@ adminsMgt.use(adminMiddleware(["super-admin"]));
 
 adminsMgt.post("/", validators.admin, createAdmin);
 adminsMgt.get("/", getAllAdmins);
+adminsMgt.get("/roles", getRoles);
 adminsMgt.get("/:id", getAdmin);
 adminsMgt.patch("/:id/change-role", validators.role, changeAdminRoles);
 adminsMgt.delete("/:id", deleteAdmin);
-adminsMgt.get("/roles", getRoles);
 
 module.exports = adminsMgt;

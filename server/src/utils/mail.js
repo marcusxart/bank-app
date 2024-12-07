@@ -36,14 +36,17 @@ function setupSend(mailOptions) {
 module.exports = sendMail = async (mailData, viewName, templateData) => {
   try {
     const templatePath = path.join(__dirname, "..", "views", `${viewName}.ejs`);
+    const support_link = process.env.SUPPORT_LINK;
     const htmlContent = await ejs.renderFile(templatePath, {
+      ...mailData,
       ...templateData,
-      bankName: process.env.BANK_NAME.replace(/_/g, " "),
-      suportLink: process.env.SUPPORT_LINK,
+      subject: mailData.subject,
+      bank_name: process.env.APP_NAME,
+      support_link,
     });
 
     const mailOptions = {
-      from: "cemeji64@gmail.com",
+      from: support_link,
       to: mailData.to,
       subject: mailData.subject,
       html: htmlContent,

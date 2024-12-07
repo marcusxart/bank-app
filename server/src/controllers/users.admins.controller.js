@@ -8,22 +8,23 @@ const { generateReferenceId } = require("../utils/referenceGen");
 const { numberFormatter } = require("../utils/numberFormatter");
 // const sendMail = require("../utils/mail");
 
-const userAttributes = {
-  attributes: {
-    exclude: USER.EXCLUDES,
-  },
-  include: {
-    model: db.accounts,
-    attributes: { exclude: ["userId", "id"] }, // Exclude 'pin' attribute from Account
-  },
+const attributes = {
+  exclude: USER.EXCLUDES,
+};
+
+const include = {
+  model: db.accounts,
+  attributes: { exclude: ["userId", "id"] },
 };
 
 exports.getAllUsers = asyncHandler(async (req, res) => {
   const results = await filterSortPaginate(
     db.users,
     ["paginate", { filter: ["email"] }],
-    userAttributes,
-    req.query
+    req.query,
+    {},
+    attributes,
+    include
   );
   res.status(200).send({
     status: "success",

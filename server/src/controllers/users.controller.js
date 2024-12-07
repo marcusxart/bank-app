@@ -5,21 +5,21 @@ const { USER } = require("../config/constants");
 const db = require("../database/models");
 const AppError = require("../exceptions/errors");
 
-const userAttributes = {
-  attributes: {
-    exclude: USER.EXCLUDES,
-  },
-  include: {
-    model: db.accounts,
-    attributes: { exclude: ["userId", "id"] },
-  },
+const attributes = {
+  exclude: USER.EXCLUDES,
+};
+
+const include = {
+  model: db.accounts,
+  attributes: { exclude: ["userId", "id"] },
 };
 
 exports.getUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await db.users.findOne({
-    ...userAttributes,
     where: { id },
+    attributes,
+    include,
   });
 
   if (!user) {
@@ -35,8 +35,9 @@ exports.getUser = asyncHandler(async (req, res) => {
 exports.getMe = asyncHandler(async (req, res) => {
   const { id } = req.user;
   const user = await db.users.findOne({
-    ...userAttributes,
     where: { id },
+    attributes,
+    include,
   });
   if (!user) {
     throw new AppError("User not found.", 404);
@@ -52,8 +53,8 @@ exports.userTransactions = asyncHandler(async (req, res) => {
   const results = await filterSortPaginate(
     db.transactions,
     ["paginate"],
-    { where: { userId: id } },
-    req.query
+    req.query,
+    { userId: id }
   );
 
   res.status(200).send({

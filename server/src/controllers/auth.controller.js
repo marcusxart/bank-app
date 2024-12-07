@@ -1,43 +1,44 @@
 require("dotenv").config();
 const asyncHandler = require("express-async-handler");
 const { Op } = require("sequelize");
-
+const sendMail = require("../utils/mail");
 const { hashPassword, checkPassword } = require("../utils/hashPassword");
 const { createOTP } = require("../utils/optGen");
 const { createAccountNumber } = require("../utils/accountNumberGen");
 const { generateToken, generateRefreshToken } = require("../utils/tokenGen");
-const { COOKIE_OPTIONS } = require("../config/constants");
+const { COOKIE_OPTIONS, ClIENT_URL } = require("../config/constants");
 const AppError = require("../exceptions/errors");
 const db = require("../database/models");
 
 exports.createUser = asyncHandler(async (req, res) => {
   const data = req.data;
-  const { email, phoneNumber } = data;
+  const { email, phoneNumber, password, firstName } = req.data;
 
-  const user = await db.users.findOne({
+  const existingUser = await db.users.findOne({
     where: {
       [Op.or]: [{ email }, { phoneNumber }],
     },
   });
 
-  if (user) {
-    throw new AppError("User already exists", 409);
+  if (existingUser) {
+    throw new AppError(
+      "A user with this email or phone number already exists",
+      409
+    );
   }
 
-  const accountNum = createAccountNumber();
-
-  let account;
-  while (true) {
-    account = await db.accounts.findOne({
-      where: { accountNumber: accountNum },
-    });
-    if (!account) break;
+  let accountNum = createAccountNumber();
+  while (await db.accounts.findOne({ where: { accountNumber: accountNum } })) {
+    accountNum = createAccountNumber();
   }
 
-  data.password = await hashPassword(data.password);
+  const hashedPassword = await hashPassword(password);
 
   await db.sequelize.transaction(async (t) => {
-    const user = await db.users.create(data, { transaction: t });
+    const user = await db.users.create(
+      { ...data, password: hashedPassword },
+      { transaction: t }
+    );
 
     await db.accounts.create(
       {
@@ -45,20 +46,16 @@ exports.createUser = asyncHandler(async (req, res) => {
         balance: 0,
         accountNumber: accountNum,
         currency: "usd",
-        stripeId: customer.id,
       },
       { transaction: t }
     );
 
     //  send otp to mail
-    await sendMail(
-      { to: user.email, subject: `Welcome ${user.firstName}` },
-      "welcome",
-      {
-        user: user.firstName,
-        loginLink: "google.com",
-      }
-    );
+    await sendMail({ to: email, subject: `Welcome ${firstName}.` }, "welcome", {
+      name: firstName,
+      login_link: `${ClIENT_URL}/auth/sign-in`,
+    });
+
     res.status(201).send({
       status: "success",
       message: "Account created successfully.",
@@ -103,7 +100,7 @@ exports.handleLogin = asyncHandler(async (req, res) => {
     res.status(200).send({
       status: "success",
       message: "You've successfully logged in.",
-      access: accessToken,
+      accessToken,
     });
   });
 });
@@ -141,13 +138,21 @@ exports.sendEmailVerification = asyncHandler(async (req, res) => {
 
     // send a mail later
 
-    const verificationUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/auth/verify-email?token=${otp.code}&email=${email}`;
+    // const verificationUrl = `${ClIENT_URL}auth/verify-email?token=${otp.code}&email=${email}`;
+    await sendMail(
+      {
+        to: user.email,
+        subject: "Email verification.",
+      },
+      "otp",
+      {
+        title:
+          "Verify your identity: temporary code for recovery (expires in 10 minutes)",
+        code: otp.code,
+      }
+    );
     const devResult =
-      process.env.NODE_ENV === "development"
-        ? { code: otp.code, url: verificationUrl }
-        : {};
+      process.env.NODE_ENV === "development" ? { code: otp.code } : {};
 
     res.status(200).json({
       status: "success",
@@ -159,21 +164,25 @@ exports.sendEmailVerification = asyncHandler(async (req, res) => {
 
 exports.confirmEmailVerification = async (req, res, next, t) => {
   const user = req.user;
-  await db.users.update(
-    {
-      verifiedEmail: true,
-    },
-    {
-      where: {
-        id: user.id,
+  try {
+    await db.users.update(
+      {
+        verifiedEmail: true,
       },
-      transaction: t,
-    }
-  );
-  res.status(200).send({
-    status: "success",
-    message: "Email verification successful!",
-  });
+      {
+        where: {
+          id: user.id,
+        },
+        transaction: t,
+      }
+    );
+    res.status(200).send({
+      status: "success",
+      message: "Email verification successful!",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.forgetPassword = asyncHandler(async (req, res) => {
@@ -199,13 +208,25 @@ exports.forgetPassword = asyncHandler(async (req, res) => {
       });
     }
     // Generate a reset token
-    const tokenResult = await createOTP(user.id, "password.recovery", t);
+    const { code } = await createOTP(user.id, "password.recovery", t);
+
+    await sendMail(
+      {
+        to: user.email,
+        subject: "Reset password.",
+      },
+      "otp",
+      {
+        title:
+          "Verify your identity: temporary code for recovery (expires in 10 minutes)",
+        code,
+      }
+    );
 
     res.status(200).json({
       status: "success",
       message: "A code was sent to your email!",
-      code:
-        process.env.NODE_ENV === "development" ? tokenResult.code : undefined,
+      code: process.env.NODE_ENV === "development" ? code : undefined,
     });
   });
 });
@@ -223,11 +244,27 @@ exports.resetPassword = async (req, res, next, t) => {
   }
 
   const hashNewPassword = await hashPassword(newPassword);
+  try {
+    await user.update({ password: hashNewPassword }, { transaction: t });
+    await sendMail(
+      {
+        to: user.email,
+        subject: "Reset password.",
+      },
+      "normal",
+      {
+        name: user.name,
+        title: "Password has been reset.",
+        nessage:
+          "We wanted to let you know that your password has been successfully reset.You can now log in using your new password. If you experience any issues, feel free to reach out for assistance.",
+      }
+    );
 
-  await user.update({ password: hashNewPassword }, { transaction: t });
-
-  res.status(200).json({
-    status: "success",
-    message: "Password has been reset successfully!",
-  });
+    res.status(200).json({
+      status: "success",
+      message: "Password has been reset successfully!",
+    });
+  } catch (error) {
+    next(error);
+  }
 };

@@ -4,53 +4,76 @@ const { MAX_RESULTS } = require("../config/constants");
 const filterSortPaginate = async (
   model,
   options = [],
-  attributes,
-  reqQuery
+  reqQuery = {},
+  where = {},
+  attributes = {},
+  include = {}
 ) => {
   const {
     page = 1,
     limit = MAX_RESULTS,
-    sort = "id",
-    order = "ASC",
     search = "",
+    sort = "createdAt",
+    order = "DESC",
   } = reqQuery;
-  const sequelizeOptions = {};
+  const sequelizeOptions = {
+    order: [[sort, order.toUpperCase()]], // Default sorting
+  };
 
-  // Apply pagination if 'paginate' is in options
+  // Validate pagination parameters
+  const size = Math.max(parseInt(limit, 10), 1); // Ensure limit is at least 1
+  const currentPage = Math.max(parseInt(page, 10), 1); // Ensure page is at least 1
+  const offset = (currentPage - 1) * size;
+
+  // Apply pagination
   if (options.includes("paginate")) {
-    const size = parseInt(limit);
-    const offset = (parseInt(page) - 1) * size;
     sequelizeOptions.limit = size;
     sequelizeOptions.offset = offset;
   }
 
-  // Apply sorting if 'sort' is in options
+  // Apply filtering
+  const filterOption = options.find(
+    (option) => typeof option === "object" && option.filter
+  );
+
+  if (filterOption && filterOption.filter.length > 0) {
+    sequelizeOptions.where = {
+      ...where,
+      [Op.and]: [
+        where,
+        {
+          [Op.or]: filterOption.filter.map((key) => ({
+            [key]: { [Op.like]: `%${search}%` },
+          })),
+        },
+      ],
+    };
+  } else {
+    sequelizeOptions.where = where;
+  }
+
+  // Apply attributes if provided
+  if (Object.keys(attributes).length > 0) {
+    sequelizeOptions.attributes = attributes;
+  }
+
+  // Apply includes if provided
+  if (Object.keys(include).length > 0) {
+    sequelizeOptions.includes = include;
+  }
+
+  // Apply sorting if provided in the query
   if (options.includes("sort")) {
     sequelizeOptions.order = [[sort, order.toUpperCase()]];
   }
 
-  // Apply filtering if 'filter' is in options
-  const filterOption = options.find(
-    (option) => typeof option === "object" && option.filter
-  );
-  if (filterOption && filterOption.filter) {
-    sequelizeOptions.where = {
-      [Op.or]: filterOption.filter.map((key) => ({
-        [key]: { [Op.like]: `%${search}%` },
-      })),
-    };
-  }
-
   try {
-    const result = await model.findAndCountAll({
-      ...sequelizeOptions,
-      ...attributes,
-    });
+    const result = await model.findAndCountAll(sequelizeOptions);
 
     return {
-      totalItems: result.count || 1,
+      totalItems: result.count,
       count: result.rows.length,
-      currentPage: parseInt(page),
+      currentPage,
       data: result.rows,
     };
   } catch (error) {

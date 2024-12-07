@@ -1,4 +1,6 @@
 const API_URL = process.env.SERVER_URL;
+const ClIENT_URL = process.env.ClIENT_URL;
+const APP_NAME = process.env.APP_NAME;
 const MAX_RESULTS = 10;
 const DEFAULT_TIMEOUT = 5000;
 const TOKEN_EXPIRES_IN = "1d";
@@ -8,21 +10,21 @@ const COOKIE_OPTIONS = {
   NAME: "refresh",
   OPTIONS: {
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
     sameSite: "none",
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
   },
 };
 
 const ADMIN_ROLES = [
-  { text: "Super Admin", value: "super-admin" },
-  { text: "Sub Admin", value: "sub-admin" },
-  { text: "Users Management", value: "users-mgt" },
-  { text: "Email Management", value: "email-mgt" },
+  { text: "Super admin", value: "super-admin" },
+  { text: "Sub admin", value: "sub-admin" },
+  { text: "Users management", value: "users-mgt" },
+  { text: "Email management", value: "email-mgt" },
 ];
 
 module.exports = {
   API_URL,
+  ClIENT_URL,
   MAX_RESULTS,
   DEFAULT_TIMEOUT,
   COOKIE_OPTIONS,

@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const verifyJWT = require("../middlewares/verifyJWT.middleware");
-const { testing } = require("../controllers/testing.controller");
+// const { testing } = require("../controllers/testing.controller");
 const { uploadImage } = require("../controllers/imageUpload.controller");
 const upload = require("../middlewares/upload.middleware");
 
@@ -10,7 +10,7 @@ api.get("/", (req, res) => {
   res.send("Server running");
 });
 
-api.get("/testing", testing);
+// api.get("/testing", testing);
 api.use("/setup", require("./setup"));
 
 //admin

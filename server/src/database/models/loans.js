@@ -40,7 +40,6 @@ const loan = (sequelize) => {
     referenceId: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
     repaymentSchedule: {
       type: DataTypes.STRING,

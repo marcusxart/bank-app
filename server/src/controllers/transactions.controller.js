@@ -8,8 +8,8 @@ exports.getUserTransaction = asyncHandler(async (req, res) => {
   const results = await filterSortPaginate(
     db.transactions,
     ["paginate"],
-    { where: userId },
-    req.query
+    req.query,
+    { where: userId }
   );
 
   res.status(200).send({

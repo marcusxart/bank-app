@@ -6,7 +6,17 @@ const db = require("../database/models");
 
 exports.createAdmin = asyncHandler(async (req, res) => {
   const data = req.data;
-  const { email } = data;
+  const { email, role } = data;
+
+  if (role === "super-admin") {
+    const superAdminExists = await db.admins.findOne({
+      where: { role: "super-admin" },
+    });
+
+    if (superAdminExists) {
+      throw new AppError("There can only be one super admin.", 400);
+    }
+  }
 
   const user = await db.admins.findOne({
     while: { email },

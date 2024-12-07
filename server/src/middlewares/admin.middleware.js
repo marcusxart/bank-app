@@ -6,23 +6,47 @@ const db = require("../database/models");
 
 const adminMiddleware = (allowedRoles = []) => {
   return asyncHandler(async (req, res, next) => {
-    const token = req.headers.authorization.split(" ")[1];
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
     if (!token) {
-      throw new AppError("Authentication token missing", 401);
+      throw new AppError(
+        "Token is missing. Please provide a valid token.",
+        401
+      );
     }
 
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    let decodedToken;
+    try {
+      decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    } catch (error) {
+      if (error.name === "TokenExpiredError") {
+        throw new AppError(
+          "Your session has expired. Please log in again.",
+          401
+        );
+      } else if (error.name === "JsonWebTokenError") {
+        throw new AppError("Invalid token. Please log in again.", 401);
+      } else {
+        throw new AppError("Authentication failed. Please try again.", 401);
+      }
+    }
 
     const admin = await db.admins.findOne({
       where: { id: decodedToken.id },
     });
 
     if (!admin) {
-      throw new AppError("Admin not found", 404);
+      throw new AppError(
+        "Admin account not found. Please check and try again.",
+        403
+      );
     }
-
-    if (!allowedRoles.includes(admin.role)) {
-      throw new AppError("Forbidden: Insufficient permissions", 403);
+    const hasRole =
+      allowedRoles.length === 0 ||
+      allowedRoles.includes(admin.role.toLowerCase());
+    if (!hasRole) {
+      throw new AppError("Forbidden: insufficient permissions.", 403);
     }
     req.admin = admin;
     next();

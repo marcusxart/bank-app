@@ -25,10 +25,12 @@ exports.handleRefreshToken = (dbName) =>
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       (err, decoded) => {
-        if (err || data.id !== decoded.id) {
+        if (err) {
+          throw new AppError("Invalid refresh token.", 403); // More specific error
+        }
+        if (data.id !== decoded.id) {
           throw new AppError("Authentication failed.", 401);
         }
-
         const accessToken = generateToken({
           id: decoded.id,
           email: decoded.email,
@@ -36,7 +38,7 @@ exports.handleRefreshToken = (dbName) =>
 
         res.status(200).send({
           status: "success",
-          access: accessToken,
+          accessToken,
         });
       }
     );
@@ -77,10 +79,7 @@ exports.handleLogout = (dbName) =>
         }
       );
     });
-    res.clearCookie(COOKIE_OPTIONS.NAME, {
-      ...COOKIE_OPTIONS.OPTIONS,
-      maxAge: undefined,
-    });
+    res.clearCookie(COOKIE_OPTIONS.NAME, COOKIE_OPTIONS.OPTIONS);
 
     res.status(204).send({
       status: "success",

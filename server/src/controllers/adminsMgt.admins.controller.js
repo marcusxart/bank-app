@@ -5,11 +5,10 @@ const { hashPassword } = require("../utils/hashPassword");
 const constants = require("../config/constants");
 const filterSortPaginate = require("../utils/filterSortPaginate");
 const db = require("../database/models");
+const { Op } = require("sequelize");
 
 const artributes = {
-  attributes: {
-    exclude: constants.USER.EXCLUDES,
-  },
+  exclude: constants.USER.EXCLUDES,
 };
 
 exports.createAdmin = asyncHandler(async (req, res) => {
@@ -48,9 +47,12 @@ exports.createAdmin = asyncHandler(async (req, res) => {
 });
 
 exports.getRoles = asyncHandler(async (req, res) => {
+  const admins = constants.ADMIN_ROLES.filter(
+    (admin) => admin.value !== "super-admin"
+  );
   res.status(200).send({
     status: "success",
-    results: constants.ADMIN_ROLES,
+    results: admins,
   });
 });
 
@@ -58,8 +60,11 @@ exports.getAllAdmins = asyncHandler(async (req, res) => {
   const results = await filterSortPaginate(
     db.admins,
     ["paginate"],
-    artributes,
-    req.query
+    req.query,
+    {
+      role: { [Op.not]: "super-admin" },
+    },
+    artributes
   );
   res.status(200).send({
     status: "success",
@@ -70,7 +75,7 @@ exports.getAllAdmins = asyncHandler(async (req, res) => {
 exports.getAdmin = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const admin = await db.admins.findOne({
-    ...artributes,
+    artributes,
     where: { id },
   });
 

@@ -44,13 +44,11 @@ exports.loansHistory = asyncHandler(async (req, res) => {
   const results = await filterSortPaginate(
     db.loans,
     ["paginate"],
+    req.query,
+    { userId: user.id },
     {
-      where: { userId: user.id },
-      attributes: {
-        exclude: constants.USER.EXCLUDES,
-      },
-    },
-    req.query
+      exclude: constants.USER.EXCLUDES,
+    }
   );
 
   res.status(200).send({

@@ -39,8 +39,8 @@ exports.verifyOtp = (type, callbackFunc) => {
           email: user.email,
           verifiedEmail: user.verifiedEmail,
         };
+        callbackFunc(req, res, next, t);
         await otp.destroy({ transaction: t });
-        return callbackFunc(req, res, next, t);
       });
     } else {
       res.status(200).json({
