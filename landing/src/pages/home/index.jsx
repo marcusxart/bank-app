@@ -31,7 +31,7 @@ const HomePage = () => {
             <img
               src={manInBoat}
               alt=""
-              className="w-full h-full object-cover opacity-80"
+              className="w-full h-full object-cover opacity-80  object-top"
             />
           </Parallax>
 
@@ -153,7 +153,7 @@ const HomePage = () => {
             <img
               src={customer}
               alt=""
-              className="w-full h-full object-cover opacity-80"
+              className="w-full h-full object-cover opacity-80 object-top"
             />
           </Parallax>
           <div className="bg-gradient-1 absolute inset-0 "></div>
