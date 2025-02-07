@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #f6efea;
+  color: #313333;
+}
+
+.bg-gradient-1 {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.3),
+    rgba(23, 34, 79, 0.2)
+  );
+}
+
+.bg-gradient-2 {
+  background: linear-gradient(rgba(23, 34, 79, 100), rgba(23, 34, 79, 0));
+}
+.bg-gradient-3 {
+  background: linear-gradient(rgba(23, 34, 79, 0), rgba(23, 34, 79, 100));
+}
+
+.header-shadow {
+  text-shadow: 5px 5px 5px #3f3f3f;
+}
