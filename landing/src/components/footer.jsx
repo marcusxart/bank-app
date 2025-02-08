@@ -11,7 +11,7 @@ const Footer = () => {
     <div className="bg-primary">
       <MaxContainer>
         <div className="pt-[35px] pb-[55px] text-white">
-          <div className="flex items-center gap-[24px] justify-between [&_p]:text-[14px] [&_p]:font-medium ">
+          <div className="flex flex-col lg:flex-row items-center gap-[24px] justify-between [&_p]:text-[14px] [&_p]:font-medium ">
             <Link>Logo</Link>
             <p>Phone: {variables.phoneNo}</p>
             <p>Email: {variables.email}</p>
@@ -21,9 +21,9 @@ const Footer = () => {
             <img src={house} alt="" />
             <img src={ncua} alt="" className="w-[115px]" />
           </div>
-          <div className="my-[28px] text-[12px] font-semibold  border-y-[1.2px] py-[28px]">
+          <div className="my-[28px] text-[12px] font-semibold  border-y-[1.2px] py-[24px]">
             <p className="text-white font-medium border-white">
-              ©{year} {variables.fullname}
+              Copyright © {year} {variables.fullname}
             </p>
           </div>
           <div className="text-light-text ">

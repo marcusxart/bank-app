@@ -13,8 +13,11 @@ import { FaRegStar } from "react-icons/fa";
 import { Parallax } from "react-scroll-parallax";
 import variables from "../../variables";
 import Footer from "../../components/footer";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   const products = [
     { text: "Savings", icon: BsPiggyBank },
     { text: "Mortgage", icon: RxHome },
@@ -23,9 +26,9 @@ const HomePage = () => {
     { text: "Special Offers", icon: FaRegStar },
   ];
   return (
-    <div className="flex w-full gap-[80px] flex-col">
+    <div className="flex w-full gap-[60px] lg:gap-[80px] flex-col">
       <div>
-        <div className="h-[700px] w-full relative text-white overflow-hidden">
+        <div className="h-[calc(100vh-90px)] min-h-[550px] lg:min-h-fit lg:h-[700px] w-full relative text-white overflow-hidden">
           <Parallax className="w-full h-full" speed={-30}>
             {" "}
             <img
@@ -41,17 +44,19 @@ const HomePage = () => {
           <div className="inset-0 absolute w-full grid place-items-center text-center">
             <MaxContainer>
               <div>
-                <h1 className="uppercase text-[72px] font-semibold header-shadow leading-[1.2]">
+                <h1 className="uppercase text-[32px] lg:text-[72px] font-semibold header-shadow leading-[1.2]">
                   Turn your dreams into reality, one step at a time
                 </h1>
 
-                <p className="mt-[10px] font-asap text-[28px] font-bold leading-[1.7]">
+                <p className="mt-[10px] font-asap text-[18px] lg:text-[28px] font-bold leading-[1.7]">
                   Start your journey today with the right plan and support
                 </p>
               </div>
               <div className="flex justify-center items-center w-full gap-[10px] pt-[30px]">
-                <Button text="Learn more" />
-                <Button text="Contact us" type="secondary" />
+                <Button
+                  text="Contact us"
+                  onClick={() => navigate("/contact-us")}
+                />
               </div>
             </MaxContainer>
           </div>
@@ -60,11 +65,11 @@ const HomePage = () => {
           <MaxContainer>
             <div className="flex flex-col w-full gap-[30px] pb-[40px]">
               <div className="pb-[20px] relative before:absolute before:w-[100px] before:h-[3px] before:bg-white before:bottom-0 before:left-1/2 before:-translate-x-1/2 text-white">
-                <h2 className="text-[40px] font-medium leading-[1.2]">
+                <h2 className="text-[24px] lg:text-[40px] font-medium leading-[1.2]">
                   Products & Services
                 </h2>
               </div>
-              <ul className="grid grid-cols-5 gap-[24px] text-icon-white">
+              <ul className="grid  grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-[32px] lg:gap-[24px] text-icon-white">
                 {products?.map((item, idx) => (
                   <li
                     key={idx}
@@ -84,18 +89,18 @@ const HomePage = () => {
       <MaxContainer>
         <div className="w-full flex flex-col gap-[40px]">
           <div className="pb-[20px] relative before:absolute before:w-[100px] before:h-[3px] before:bg-primary before:bottom-0 before:left-1/2 before:-translate-x-1/2 text-dark-text text-center">
-            <h2 className="text-[40px] font-medium leading-[1.2] capitalize">
+            <h2 className="text-[24px] lg:text-[40px] font-medium leading-[1.2] capitalize">
               Empowering Communities Together
             </h2>
-            <p className="max-w-[720px] opacity-80 mx-auto mt-[8px]">
+            <p className="text-[14px] lg:text-base max-w-[720px] opacity-80 mx-auto mt-[8px]">
               Our commitment to communities goes beyond quick fixes. It’s about
               building trust, driving change, and creating a lasting positive
               impact.
             </p>
           </div>
-          <div className="grid w-full grid-cols-2 gap-[32px]">
+          <div className="grid w-full grid-cols-1 sm:grid-cols-2 gap-[32px]">
             <div className="shadow-md rounded-[8px] overflow-hidden">
-              <div className="w-full h-[320px] overflow-hidden">
+              <div className="w-full h-[220px] lg:h-[320px] overflow-hidden">
                 <Parallax className="w-full h-full" speed={-10}>
                   <img
                     src={helpersPeople}
@@ -104,23 +109,26 @@ const HomePage = () => {
                   />
                 </Parallax>
               </div>
-              <div className="pt-[24px] px-[32px] pb-[32px]">
+              <div className="pt-[16px] lg:pt-[24px] px-[24px] lg:px-[32px] pb-[24px] lg:pb-[32px]">
                 <div className="mb-[24px]">
-                  <h3 className="text-[28px] font-semibold text-primary capitalize">
+                  <h3 className="text-[22px] lg:text-[28px] font-semibold text-primary capitalize">
                     Who we are
                   </h3>
-                  <p className="text-dark-text mt-[4px]">
+                  <p className="text-dark-text mt-[4px] text-[14px] lg:text-base">
                     {variables.name} is committed to fostering stronger
                     communities by promoting diversity, equity, and inclusion,
                     empowering economic growth, and supporting sustainable
                     initiatives.
                   </p>
                 </div>
-                <Button text="Learn more" />
+                <Button
+                  text="Learn more"
+                  onClick={() => navigate("/about-us")}
+                />
               </div>
             </div>
             <div className="shadow-md rounded-[8px] overflow-hidden">
-              <div className="w-full h-[320px] overflow-hidden">
+              <div className="w-full h-[220px] lg:h-[320px] overflow-hidden">
                 <Parallax className="w-full h-full" speed={-10}>
                   <img
                     src={withFlowers}
@@ -129,12 +137,12 @@ const HomePage = () => {
                   />
                 </Parallax>
               </div>
-              <div className="pt-[24px] px-[32px] pb-[32px]">
+              <div className="pt-[16px] lg:pt-[24px] px-[24px] lg:px-[32px] pb-[24px] lg:pb-[32px]">
                 <div className="mb-[24px]">
-                  <h3 className="text-[28px] font-semibold text-primary capitalize">
+                  <h3 className="text-[22px] lg:text-[28px] font-semibold text-primary capitalize">
                     Our commitment to communities
                   </h3>
-                  <p className="text-dark-text mt-[4px]">
+                  <p className="text-dark-text mt-[4px] text-[14px] lg:text-base">
                     We are more than just a part of our communities—we are
                     deeply rooted in them. Through dedication and action, we
                     strive to empower customers and neighborhoods, helping them
@@ -148,7 +156,7 @@ const HomePage = () => {
       </MaxContainer>
 
       <div>
-        <div className="w-full h-[440px] overflow-hidden relative">
+        <div className="w-full h-[320px] lg:h-[440px] overflow-hidden relative">
           <Parallax className="w-full h-full" speed={-20}>
             <img
               src={customer}
@@ -162,19 +170,22 @@ const HomePage = () => {
 
           <div className="inset-0 absolute w-full grid place-items-center text-white">
             <MaxContainer>
-              <div className="grid grid-cols-2 w-full">
-                <div className="">
-                  <h2 className="uppercase text-[52px] font-semibold  leading-[1.2] font-asap">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px] lg:gap-0 w-full">
+                <div className="text-center lg:text-right">
+                  <h2 className="uppercase text-[28px] lg:text-[52px] font-semibold  leading-[1.2] font-asap">
                     Want to get in touch with us?
                   </h2>
 
-                  <p className="mt-[10px] font-asap text-[20px] font-medium ">
+                  <p className="mt-[10px] font-asap  lg:text-[20px] font-medium ">
                     Contact us today to learn more about joining{" "}
                     {variables.name} and why we're the best choice for you!
                   </p>
                 </div>
                 <div className="grid w-full place-items-center">
-                  <button className="uppercase bg-white text-primary h-[48px] px-[30px] text-[13px] font-bold font-open-sans rounded-[40px]">
+                  <button
+                    className="uppercase bg-white text-primary h-[48px] px-[30px] text-[13px] font-bold w-fit font-open-sans rounded-[40px]"
+                    onClick={() => navigate("/contact-us")}
+                  >
                     Contact us
                   </button>
                 </div>

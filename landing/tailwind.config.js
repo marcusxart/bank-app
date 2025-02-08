@@ -16,6 +16,7 @@ export default {
         "light-text": "#8285b3",
         "dark-text": "#262626",
         hover: "#EBEBEB",
+        accent: "#E96F20",
       },
     },
   },
