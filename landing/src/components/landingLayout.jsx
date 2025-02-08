@@ -39,7 +39,12 @@ const LandingLayout = () => {
   return (
     <div className={classNames("min-h-[100dvh]")}>
       <Nav y={y} toggle={toggle} setToggle={setToggle} />
-      <div className={classNames({ "pt-[90px]": y > 80 })}>
+      <div
+        className={classNames("pt-[80px]", {
+          // "lg:pt-[90px]": y > 80,
+          "lg:pt-0": !(y > 80),
+        })}
+      >
         <Outlet />
       </div>
     </div>
@@ -147,7 +152,7 @@ const Nav = ({ y, toggle, setToggle }) => {
 
         <div
           className={classNames(
-            "h-[80px] lg:h-[90px] grid place-items-center w-full  fixed top-0 left-0 right-0 lg:relative  z-50 bg-primary",
+            "h-[80px] lg:h-[90px] lg:grid place-items-center w-full    z-50 bg-primary hidden ",
             {
               "fixed top-0 left-0 right-0": y > 80,
             }
@@ -197,6 +202,10 @@ const Nav = ({ y, toggle, setToggle }) => {
                 ))}
               </ul>
             </div>
+          </MaxContainer>
+        </div>
+        <div className="h-[80px] lg:h-[90px] grid place-items-center w-full    z-50 bg-primary lg:hidden fixed top-0 left-0 right-0">
+          <MaxContainer>
             <div className="flex items-center justify-between w-full lg:hidden">
               <Link>Logo</Link>
               <Hamburger toggled={toggle} toggle={setToggle} />
