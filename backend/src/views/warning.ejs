@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body style="background-color: #e5e7eb; margin: 0">
+    <center
+      style="width: 100%; table-layout: fixed; margin: 0; padding-bottom: 32px"
+    >
+      <table
+        style="
+          width: 100%;
+          max-width: 600px;
+          font-family: 'Nunito', Calibri;
+          color: #363636;
+          border-collapse: collapse;
+          border-spacing: 0;
+          background-color: #e5e7eb;
+        "
+      >
+        <!-- logo -->
+        <tr>
+          <td align="center" style="padding: 12px 0">
+            <a href="http://learngual.com" target="_blank"> Logo </a>
+          </td>
+        </tr>
+
+        <!-- hero -->
+        <tr>
+          <td
+            height="140"
+            align="center"
+            style="
+              background-color: #fec40b;
+              background-image: url(https://learngual-bucket.sfo3.cdn.digitaloceanspaces.com/static/email-ver/stars.png);
+            "
+          >
+            <h1
+              style="
+                text-align: center;
+                color: #fff;
+                font-size: 20px;
+                padding: 0 24px;
+                max-width: 500px;
+                margin: 0 auto;
+                font-family: 'Nunito', Calibri;
+              "
+            >
+              <%= title %>
+            </h1>
+          </td>
+        </tr>
+
+        <!-- body -->
+        <tr>
+          <td style="background-color: #fff; padding: 0">
+            <table
+              style="width: 100%; border-collapse: collapse; border-spacing: 0"
+            >
+              <tr>
+                <td
+                  style="
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    padding-top: 20px;
+                  "
+                  align="center"
+                >
+                  <div style="height: 140px; width: 140px">
+                    <img
+                      src="http://res.cloudinary.com/dgbu6rwwq/image/upload/v1739528455/images/qy4o4njqfdpcek3qzhop.png"
+                      alt=""
+                      style="height: 140px; width: 140px; object-fit: contain"
+                    />
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  s
+                  style="padding: 20px 24px 50px; color: #363636"
+                >
+                  <p
+                    style="
+                      margin: 0;
+                      font-size: 16px;
+                      line-height: 24px;
+                      margin-bottom: 16px;
+                      max-width: 420px;
+                      font-family: 'Nunito', Calibri;
+                    "
+                  >
+                    Dear <strong><%= first_name %></strong>,
+                  </p>
+                  <p
+                    style="
+                      margin: 0;
+                      font-size: 16px;
+                      line-height: 24px;
+                      margin-bottom: 16px;
+                      max-width: 434px;
+                      font-family: 'Nunito', Calibri;
+                    "
+                  >
+                    <%= message %>
+                  </p>
+
+                  <p
+                    style="
+                      font-size: 12px;
+                      line-height: 16px;
+                      max-width: 300px;
+                      margin: 32px auto 0;
+                      color: #666666;
+                      font-family: 'Nunito', Calibri;
+                    "
+                  >
+                    If you have any questions, feel free to reach out to us: <%=
+                    mail_support %>.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- footer -->
+        <tr>
+          <td style="padding: 0px 0 32px">
+            <table
+              style="width: 100%; border-collapse: collapse; border-spacing: 0"
+            >
+              <tr>
+                <td align="center">
+                  <a
+                    href="http://learngual.com"
+                    style="
+                      margin: 32px 0 24px;
+                      font-size: 15px;
+                      display: inline-block;
+                      color: #363636;
+                      text-decoration: none;
+                      font-family: 'Nunito', Calibri;
+                    "
+                  >
+                    <%= app_url %>
+                  </a>
+                  <p
+                    style="
+                      font-size: 14px;
+                      margin: 0;
+                      color: #a7a7a7;
+                      font-family: 'Nunito', Calibri;
+                    "
+                  >
+                    Copyright © <%= year %> Website
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </center>
+  </body>
+</html>
